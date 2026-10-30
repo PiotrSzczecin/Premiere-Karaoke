@@ -1,0 +1,19 @@
+node_modules/
+build/
+*.pyc
+__pycache__/
+.pytest_cache/
+dist-exact/
+*.wav
+*.mp3
+*.mp4
+*.karaoke.json
+*.ttml
+
+# Środowiska i paczki wydań
+.venv/
+*.egg-info/
+release/
+*.ccx
+*.zip
+Thumbs.db

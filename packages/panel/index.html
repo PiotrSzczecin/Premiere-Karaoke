@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Karaoke Captions PL</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <h1>Karaoke Captions <span class="version">v0.4.8</span></h1>
+      <p>Całe zdanie pozostaje nieruchome. Zmienia się tylko aktywne słowo.</p>
+    </div>
+    <span id="serviceStatus" class="badge muted">helper: ?</span>
+  </header>
+
+  <main>
+    <section>
+      <h2>Źródło</h2>
+      <div class="button-row">
+        <button id="pickSrt" class="primary">Wybierz SRT</button>
+        <button id="loadProject">Wczytaj .karaoke.json</button>
+        <button id="saveProject">Zapisz projekt</button>
+      </div>
+      <div id="srtPath" class="path">Nie wybrano SRT</div>
+      <div class="button-row">
+        <button id="pickAudio">Wybierz audio / wideo (także MPG)</button>
+      </div>
+      <div id="audioPath" class="path">Nie wybrano audio/wideo</div>
+      <div class="hint">Wybrany plik audio/wideo jest automatycznie importowany do aktywnego projektu Premiere.</div>
+      <details>
+        <summary>Automatyczny eksport miksu WAV</summary>
+        <p class="hint">Oficjalny Encoder Manager wymaga presetu Adobe Media Encoder (.epr). Wybierz preset PCM/WAV i miejsce zapisu.</p>
+        <div class="button-row">
+          <button id="pickEpr">Wybierz preset EPR</button>
+          <button id="exportMix">Eksportuj miks</button>
+        </div>
+        <div id="eprPath" class="path">Nie wybrano presetu</div>
+      </details>
+      <div class="grid two">
+        <label>Aktywna sekwencja<input id="sequenceName" readonly value="—"></label>
+        <label>Format<input id="sequenceFormat" readonly value="—"></label>
+        <label>Ścieżka audio<select id="audioTrack"></select></label>
+        <label>Ścieżka wideo<select id="videoTrack"></select></label>
+      </div>
+      <button id="refreshSequence">Odśwież sekwencję</button>
+    </section>
+
+    <section>
+      <h2>Synchronizacja</h2>
+      <div class="segmented" role="radiogroup">
+        <label><input type="radio" name="mode" value="exact" checked> Dokładna (lokalna)</label>
+        <label><input type="radio" name="mode" value="quick"> Szybka — mniej dokładna</label>
+      </div>
+      <div class="grid three">
+        <label>Zakres analizy przed (s)<input id="paddingBefore" type="number" value="1.00" min="0" max="5" step="0.05"></label>
+        <label>Zakres analizy po (s)<input id="paddingAfter" type="number" value="1.50" min="0" max="5" step="0.05"></label>
+        <label>Pokaż wcześniej bez podświetlenia (s)<input id="displayLeadIn" type="number" value="0.30" min="0" max="2" step="0.05"></label>
+        <label>Trzymaj po ostatnim słowie (s)<input id="displayTail" type="number" value="0.25" min="0" max="3" step="0.05"></label>
+        <label>Min. słowo (s)<input id="minWord" type="number" value="0.08" min="0.02" max="1" step="0.01"></label>
+        <label>Min. aktywny kolor (s)<input id="minHighlight" type="number" value="0.12" min="0.04" max="0.50" step="0.01"></label>
+      </div>
+      <label>Obsługa przerw<select id="pauseMode"><option value="midpoint">Podział w połowie</option><option value="previous">Przedłuż poprzednie słowo</option><option value="next">Przedłuż następne słowo</option></select></label>
+      <div class="button-row">
+        <button id="analyze" class="primary">Analizuj i dopasuj</button>
+        <button id="cancelAnalysis" disabled>Anuluj</button>
+      </div>
+      <progress id="progress" max="100" value="0"></progress>
+      <div id="syncMessage" class="hint">Tryb dokładny nie wysyła audio do chmury.</div>
+    </section>
+
+    <section>
+      <div class="section-title-row">
+        <h2>Edycja</h2>
+        <span id="entryCount" class="badge">0 wpisów</span>
+      </div>
+      <div id="issues" class="issues"></div>
+      <div id="entryList" class="entry-list"></div>
+      <div id="wordEditor" class="word-editor empty">Kliknij słowo, aby ręcznie zmienić jego czas.</div>
+    </section>
+
+    <section>
+      <h2>Wygląd i kolory karaoke</h2>
+      <div class="grid two">
+        <label>Preset kanału<select id="channelPreset"></select></label>
+        <label>Nazwa nowego presetu<input id="channelPresetName" placeholder="np. Polo TV" spellcheck="false"></label>
+      </div>
+      <div class="button-row wrap">
+        <button id="applyChannelPreset" class="primary">Przywróć ustawienia presetu</button>
+        <button id="saveChannelPreset">Zapisz obecny wygląd jako preset</button>
+        <button id="deleteChannelPreset" class="danger">Usuń preset</button>
+      </div>
+      <div class="hint">Preset ustawia font, kolory, obrys, cień, tło, położenie oraz czas pokazania przed i po śpiewie. Własne presety zostają zapisane w Premiere na tym komputerze.</div>
+      <div class="hint">Bazowy = zdanie przed śpiewem, aktywny = aktualnie śpiewane słowo, przeczytany = słowa już zaśpiewane.</div>
+      <div class="grid two">
+        <label>Font<input id="font" value="Arial-BoldMT"></label>
+        <label>Rozmiar<input id="fontSize" type="number" value="82" min="12" max="300"></label>
+        <label>Maks. wiersze<select id="maxLines"><option value="1">1</option><option value="2" selected>2</option></select></label>
+        <label>Wyrównanie<select id="alignment"><option value="center">Środek</option><option value="left">Lewo</option><option value="right">Prawo</option></select></label>
+        <label>Zdanie przed śpiewem — kolor bazowy<span class="color-editor"><span id="baseColorSwatch" class="color-swatch" style="background:#ffffff"></span><input id="baseColor" type="text" value="#ffffff" spellcheck="false"></span></label>
+        <label>Śpiewane słowo — kolor aktywny<span class="color-editor"><span id="activeColorSwatch" class="color-swatch" style="background:#ffd400"></span><input id="activeColor" type="text" value="#ffd400" spellcheck="false"></span></label>
+        <label>Zaśpiewane słowa — kolor przeczytany<span class="color-editor"><span id="pastColorSwatch" class="color-swatch" style="background:#8ed8ff"></span><input id="pastColor" type="text" value="#8ed8ff" spellcheck="false"></span></label>
+        <label>Kolor obrysu<span class="color-editor"><span id="strokeColorSwatch" class="color-swatch" style="background:#000000"></span><input id="strokeColor" type="text" value="#000000" spellcheck="false"></span></label>
+        <label>Obrys (px)<input id="strokeWidth" type="number" value="5" min="0" max="30" step="0.5"></label>
+        <label>Pozycja X (%)<input id="positionX" type="number" value="50" min="0" max="100"></label>
+        <label>Pozycja Y (%)<input id="positionY" type="number" value="82" min="0" max="100"></label>
+        <label>Margines bezpieczny (%)<input id="safeMargin" type="number" value="8" min="0" max="30"></label>
+        <label>Szerokość pola (%)<input id="textBoxWidth" type="number" value="84" min="20" max="100"></label>
+        <label>Interlinia (%)<input id="lineHeight" type="number" value="110" min="50" max="250"></label>
+        <label>Wyróżnienie<select id="highlightMode"><option value="text">Kolor tekstu</option><option value="box">Prostokątne tło</option></select></label>
+        <label>Tło aktywnego<span class="color-editor"><span id="activeBackgroundColorSwatch" class="color-swatch" style="background:#554400"></span><input id="activeBackgroundColor" type="text" value="#554400" spellcheck="false"></span></label>
+        <label>Tło zdania<span class="color-editor"><span id="backgroundColorSwatch" class="color-swatch" style="background:#000000"></span><input id="backgroundColor" type="text" value="#000000" spellcheck="false"></span></label>
+      </div>
+      <div class="checks">
+        <label><input id="usePastColor" type="checkbox" checked> Kolor słów przeczytanych</label>
+        <label><input id="activeBold" type="checkbox" checked> Pogrub aktywne słowo</label>
+        <label><input id="shadow" type="checkbox" checked> Cień</label>
+        <label><input id="background" type="checkbox"> Tło zdania</label>
+      </div>
+    </section>
+
+    <section>
+      <h2>Animacja po konwersji — opcjonalna</h2>
+      <div class="notice">Premiere UXP nie pozwala panelowi zastosować presetu Text Animator. Po konwersji możesz użyć przycisków „Zaznacz pierwsze grafiki” lub „Zaznacz ostatnie grafiki”, a następnie ręcznie nałożyć swój preset w Premiere. Nazwa presetu nie jest już potrzebna w panelu.</div>
+    </section>
+
+    <section>
+      <h2>Generowanie</h2>
+      <div class="grid two">
+        <label>Ścieżka docelowa<select id="videoTrackMirror"></select></label>
+        <label>Nazwa sekwencji overlay<input id="overlaySequenceName" value="KARAOKE_OVERLAY"></label>
+      </div>
+      <label class="checks"><input id="useOverlaySequence" type="checkbox" checked> Spróbuj automatycznie utworzyć sekwencję overlay z Caption</label>
+      <div class="button-row wrap">
+        <button id="generateAll" class="primary">Generuj wszystko + sekwencja</button>
+        <button id="generateSelected">TTML — zaznaczone</button>
+        <button id="generateDirty">TTML — zmienione</button>
+        <button id="importTtml">Importuj ponownie (awaryjnie)</button>
+        <button id="removeGenerated" class="danger">Usuń poprzednią wersję</button>
+      </div>
+      <div class="notice"><strong>Po utworzeniu sekwencji:</strong> zaznacz wszystkie segmenty Caption, wybierz Graphics and Titles → Upgrade Caption to Graphic i usuń tymczasową ścieżkę Caption. Panel sprawdza, czy Caption rzeczywiście powstał; pustą sekwencję usuwa i pokazuje instrukcję ręcznego przeciągnięcia TTML.</div>
+      <div class="button-row wrap">
+        <button id="selectIntroClips">Zaznacz pierwsze grafiki</button>
+        <button id="selectOutroClips">Zaznacz ostatnie grafiki</button>
+        <button id="verifyNative">Sprawdź rezultat</button>
+      </div>
+      <progress id="generateProgress" max="100" value="0"></progress>
+    </section>
+
+    <section class="logs-section">
+      <div class="section-title-row"><h2>Log</h2><button id="clearLog">Wyczyść</button></div>
+      <pre id="log"></pre>
+    </section>
+  </main>
+  <script src="dist/core.js"></script>
+  <script src="dist/main.js"></script>
+</body>
+</html>

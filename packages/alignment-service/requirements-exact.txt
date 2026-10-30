@@ -1,0 +1,5 @@
+# Instaluj tylko w środowisku Python 3.10 lub 3.11 zgodnym z bieżącym WhisperX/PyTorch.
+whisperx>=3.3,<4
+torch>=2.2
+torchaudio>=2.2
+pyinstaller>=6.10

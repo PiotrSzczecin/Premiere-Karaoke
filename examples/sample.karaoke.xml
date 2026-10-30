@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tt xmlns="http://www.w3.org/ns/ttml" xmlns:tts="http://www.w3.org/ns/ttml#styling" xmlns:ttp="http://www.w3.org/ns/ttml#parameter" xml:lang="pl" ttp:timeBase="media">
+  <head>
+    <styling>
+      <style xml:id="paragraph" tts:fontFamily="Arial" tts:fontSize="82px" tts:lineHeight="110%" tts:textAlign="center" tts:color="#FFFFFF" tts:backgroundColor="transparent"/>
+      <style xml:id="base" tts:color="#FFFFFF"/>
+      <style xml:id="past" tts:color="#8ED8FF"/>
+      <style xml:id="active" tts:color="#FFD400" tts:fontWeight="bold"/>
+      <style xml:id="activeBox" tts:color="#FFD400" tts:fontWeight="bold" tts:backgroundColor="#554400"/>
+    </styling>
+    <layout>
+      <region xml:id="karaoke" tts:origin="8.00% 70.00%" tts:extent="84.00% 24%" tts:displayAlign="after"/>
+    </layout>
+  </head>
+  <body><div>
+      <p xml:id="k-1-example-w1" begin="00:00:01.000" end="00:00:01.650" region="karaoke" style="paragraph"><span style="active">Dzisiaj</span><span style="base"> w Szczecinie będzie słonecznie.</span></p>
+      <p xml:id="k-1-example-w2" begin="00:00:01.650" end="00:00:01.900" region="karaoke" style="paragraph"><span style="past">Dzisiaj</span><span style="base"> </span><span style="active">w</span><span style="base"> Szczecinie będzie słonecznie.</span></p>
+      <p xml:id="k-1-example-w3" begin="00:00:01.900" end="00:00:02.650" region="karaoke" style="paragraph"><span style="past">Dzisiaj w</span><span style="base"> </span><span style="active">Szczecinie</span><span style="base"> będzie słonecznie.</span></p>
+      <p xml:id="k-1-example-w4" begin="00:00:02.650" end="00:00:03.200" region="karaoke" style="paragraph"><span style="past">Dzisiaj w Szczecinie</span><span style="base"> </span><span style="active">będzie</span><span style="base"> słonecznie.</span></p>
+      <p xml:id="k-1-example-w5" begin="00:00:03.200" end="00:00:04.000" region="karaoke" style="paragraph"><span style="past">Dzisiaj w Szczecinie będzie</span><span style="base"> </span><span style="active">słonecznie.</span></p>
+  </div></body>
+</tt>
+
